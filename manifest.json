@@ -1,0 +1,11 @@
+{
+  "name": "Cricket Cora",
+  "short_name": "Cricket Cora",
+  "description": "Premium Cricket Community Web App",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#08111f",
+  "theme_color": "#e53935",
+  "orientation": "portrait-primary",
+  "icons": []
+}
