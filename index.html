@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Cricket Cora — Premium Cricket Community">
+  <title>Cricket Cora</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #07111f;
+      --card: rgba(18, 31, 51, 0.88);
+      --red: #e63946;
+      --blue: #2472e8;
+      --text: #ffffff;
+      --muted: #9caabd;
+      --border: rgba(255,255,255,.08);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Loading */
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 78px;
+      height: 78px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      font-weight: 900;
+      box-shadow: 0 15px 40px rgba(0,0,0,.4);
+    }
+
+    .loading-title {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .progress {
+      width: 230px;
+      height: 6px;
+      border-radius: 10px;
+      background: #1b293c;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--blue));
+      transition: width .25s ease;
+    }
+
+    #loadingPercent {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Offline */
+    #offlineScreen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .offline-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 24px;
+    }
+
+    .offline-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+
+    .offline-card h2 {
+      margin-bottom: 10px;
+    }
+
+    .offline-card p {
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      color: white;
+      padding: 13px 24px;
+      border-radius: 14px;
+      font-weight: 700;
+    }
+
+    /* Login */
+    #loginScreen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 25px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .login-card .logo {
+      margin: 0 auto 18px;
+    }
+
+    .login-card h1 {
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .google-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: white;
+      color: #111;
+      font-weight: 700;
+    }
+
+    /* App */
+    #app {
+      min-height: 100vh;
+      padding-bottom: 82px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 16px;
+      background: rgba(7,17,31,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #122239;
+      color: white;
+    }
+
+    main {
+      padding: 18px 15px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn .2s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome {
+      margin: 10px 0 20px;
+    }
+
+    .welcome h1 {
+      font-size: 27px;
+      margin-bottom: 6px;
+    }
+
+    .welcome p {
+      color: var(--muted);
+    }
+
+    .section-title {
+      margin: 22px 0 12px;
+      font-size: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 17px;
+      margin-bottom: 12px;
+    }
+
+    .match-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .live-label {
+      display: inline-block;
+      color: #fff;
+      background: var(--red);
+      padding: 5px 9px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .team {
+      text-align: center;
+      flex: 1;
+    }
+
+    .team-name {
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .score {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .vs {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    /* Bottom navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      background: rgba(8,18,32,.97);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px 5px max(8px, env(safe-area-inset-bottom));
+    }
+
+    .nav-btn {
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+    }
+
+    .nav-btn.active {
+      color: white;
+    }
+
+    .nav-btn.active .nav-icon {
+      transform: scale(1.08);
+    }
+
+    /* Profile */
+    .profile-head {
+      text-align: center;
+      padding: 15px 0 25px;
+    }
+
+    .avatar {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      margin: auto;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .profile-head h2 {
+      margin-top: 12px;
+    }
+
+    .profile-head p {
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-row:last-child {
+      border-bottom: 0;
+    }
+
+    .danger {
+      color: #ff6873;
+    }
+
+    @media (min-width: 700px) {
+      main {
+        padding-left: 25px;
+        padding-right: 25px;
+      }
+
+      .bottom-nav {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(650px, 100%);
+        border-radius: 20px 20px 0 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Loading -->
+  <section id="loadingScreen">
+    <div class="logo">CC</div>
+    <div class="loading-title">Cricket Cora</div>
+    <div class="progress">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <div id="loadingPercent">0%</div>
+  </section>
+
+  <!-- Offline -->
+  <section id="offlineScreen" class="hidden">
+    <div class="offline-card">
+      <div class="offline-icon">📡</div>
+      <h2>No Internet Connection</h2>
+      <p>Cricket Cora internet-only app है। Internet connection check करके फिर retry करें.</p>
+      <button class="primary-btn" onclick="checkInternet()">Retry</button>
+    </div>
+  </section>
+
+  <!-- Login -->
+  <section id="loginScreen" class="hidden">
+    <div class="login-card">
+      <div class="logo">CC</div>
+      <h1>Welcome to Cricket Cora</h1>
+      <p>Live cricket, polls, fan battle, chat, community और cricket news — सब एक जगह।</p>
+      <button id="googleLoginBtn" class="google-btn">
+        Continue with Google
+      </button>
+    </div>
+  </section>
+
+  <!-- Main App -->
+  <section id="app" class="hidden">
+
+    <header>
+      <div class="header-row">
+        <div class="brand">
+          <div class="brand-logo">CC</div>
+          <div class="brand-name">Cricket Cora</div>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn" onclick="showMessage('Search जल्द available होगा')">🔎</button>
+          <button class="icon-btn" onclick="showMessage('Notifications जल्द available होंगे')">🔔</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- HOME -->
+      <div id="homePage" class="page active">
+        <div class="welcome">
+          <h1>Cricket Cora 🏏</h1>
+          <p>Cricket fans की अपनी community.</p>
+        </div>
+
+        <h2 class="section-title">🔴 Live Matches</h2>
+
+        <div class="card match-card">
+          <span class="live-label">LIVE</span>
+          <div class="teams">
+            <div class="team">
+              <div class="team-name">Team A</div>
+              <div class="score">0/0</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="team">
+              <div class="team-name">Team B</div>
+              <div class="score">0/0</div>
+            </div>
+          </div>
+          <p class="empty">Live cricket data API connect होने के बाद real matches यहाँ आएँगे.</p>
+        </div>
+
+        <h2 class="section-title">🔥 Fan Battle</h2>
+        <div class="card">
+          <h3>Who will win?</h3>
+          <p style="color:var(--muted);margin-top:8px;">
+            Match शुरू होने पर live fan battle यहाँ दिखाई देगा.
+          </p>
+        </div>
+
+        <h2 class="section-title">📰 Breaking News</h2>
+        <div class="card">
+          <p class="empty">अभी कोई breaking news नहीं है.</p>
+        </div>
+      </div>
+
+      <!-- MATCHES -->
+      <div id="matchesPage" class="page">
+        <h1>🏏 Matches</h1>
+        <p style="color:var(--muted);margin:8px 0 20px;">
+          Today • Tomorrow • Upcoming • Completed
+        </p>
+
+        <div class="card">
+          <h3>Match Centre</h3>
+          <p style="color:var(--muted);margin-top:8px;">
+            Score • Stats • Poll • Chat
+          </p>
+        </div>
+
+        <div class="empty">
+          Cricket data provider connect होने के बाद schedule यहाँ आएगा.
+        </div>
+      </div>
+
+      <!-- BATTLE -->
+      <div id="battlePage" class="page">
+        <h1>⚔️ Fan Battle</h1>
+
+        <div class="card">
+          <h3>Team A 🆚 Team B</h3>
+          <p style="color:var(--muted);margin:10px 0;">
+            Fan Power
+          </p>
+
+          <div style="display:flex;justify-content:space-between;font-weight:800;">
+            <span>Team A 🔵 50%</span>
+            <span>Team B 🔴 50%</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🗳️ Match Polls</h3>
+          <p style="color:var(--muted);margin-top:8px;">
+            हर match के लिए automatic poll system बाद में connect होगा.
+          </p>
+        </div>
+      </div>
+
+      <!-- NEWS -->
+      <div id="newsPage" class="page">
+        <h1>📰 News</h1>
+
+        <div class="card">
+          <h3>Latest Cricket News</h3>
+          <p style="color:var(--muted);margin-top:8px;">
+            Breaking, Match, Team, Player और Tournament news.
+          </p>
+        </div>
+
+        <div class="empty">
+          News collection connect होने के बाद articles यहाँ आएँगे.
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="profilePage" class="page">
+
+        <div class="profile-head">
+          <div id="profileAvatar" class="avatar">CC</div>
+          <h2 id="profileName">Cricket Fan</h2>
+          <p id="profileEmail">Google account</p>
+        </div>
+
+        <div class="card">
+          <div class="setting-row">
+            <span>🏆 Fan Rank</span>
+            <strong>Beginner</strong>
+          </div>
+
+          <div class="setting-row">
+            <span>⭐ Achievements</span>
+            <strong>0</strong>
+          </div>
+
+          <div class="setting-row">
+            <span>👥 Followers</span>
+            <strong>0</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:5px;">Settings</h3>
+
+          <div class="setting-row">
+            <span>🔔 Notifications</span>
+            <span>ON</span>
+          </div>
+
+          <div class="setting-row">
+            <span>🔊 Sound</span>
+            <span>ON</span>
+          </div>
+
+          <div class="setting-row">
+            <span>📳 Haptic</span>
+            <span>ON</span>
+          </div>
+
+          <div class="setting-row">
+            <span>🌙 Theme</span>
+            <span>Dark</span>
+          </div>
+
+          <div class="setting-row">
+            <span>🌐 Language</span>
+            <span>English</span>
+          </div>
+
+          <div class="setting-row">
+            <span>📡 Data Saver</span>
+            <span>OFF</span>
+          </div>
+
+          <div class="setting-row">
+            <span>🔒 Privacy & Security</span>
+            <span>›</span>
+          </div>
+
+          <div class="setting-row">
+            <span>🚫 Blocked Users</span>
+            <span>›</span>
+          </div>
+
+          <div class="setting-row">
+            <span>📄 Terms & Privacy</span>
+            <span>›</span>
+          </div>
+
+          <div class="setting-row">
+            <span>❓ Help / FAQ</span>
+            <span>›</span>
+          </div>
+
+          <div class="setting-row danger" onclick="logout()">
+            <span>🚪 Logout</span>
+            <span>›</span>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+
+      <button class="nav-btn active" data-page="homePage" onclick="openPage('homePage', this)">
+        <span class="nav-icon">🏠</span>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-btn" data-page="matchesPage" onclick="openPage('matchesPage', this)">
+        <span class="nav-icon">🏏</span>
+        <span>Matches</span>
+      </button>
+
+      <button class="nav-btn" data-page="battlePage" onclick="openPage('battlePage', this)">
+        <span class="nav-icon">⚔️</span>
+        <span>Battle</span>
+      </button>
+
+      <button class="nav-btn" data-page="newsPage" onclick="openPage('newsPage', this)">
+        <span class="nav-icon">📰</span>
+        <span>News</span>
+      </button>
+
+      <button class="nav-btn" data-page="profilePage" onclick="openPage('profilePage', this)">
+        <span class="nav-icon">👤</span>
+        <span>Profile</span>
+      </button>
+
+    </nav>
+  </section>
+
+  <script>
+    const state = {
+      user: null,
+      firebaseReady: false
+    };
+
+    function setProgress(value) {
+      const percent = Math.max(0, Math.min(100, value));
+      document.getElementById("progressBar").style.width = percent + "%";
+      document.getElementById("loadingPercent").textContent = percent + "%";
+    }
+
+    function hide(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    function show(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function checkInternet() {
+      if (navigator.onLine) {
+        hide("offlineScreen");
+        initializeApp();
+      } else {
+        hide("loadingScreen");
+        hide("loginScreen");
+        hide("app");
+        show("offlineScreen");
+      }
+    }
+
+    function initializeApp() {
+      hide("offlineScreen");
+
+      let progress = 0;
+
+      const timer = setInterval(() => {
+        progress += 10;
+        setProgress(progress);
+
+        if (progress >= 100) {
+          clearInterval(timer);
+          setTimeout(() => {
+            hide("loadingScreen");
+
+            /*
+              Firebase Authentication will be connected here
+              using the real Cricket Cora Firebase configuration.
+            */
+
+            if (state.user) {
+              showApp();
+            } else {
+              show("loginScreen");
+            }
+          }, 250);
+        }
+      }, 45);
+    }
+
+    function showApp() {
+      hide("loginScreen");
+      show("app");
+
+      if (state.user) {
+        const name = state.user.displayName || "Cricket Fan";
+        const email = state.user.email || "Google account";
+
+        document.getElementById("profileName").textContent = name;
+        document.getElementById("profileEmail").textContent = email;
+
+        document.getElementById("profileAvatar").textContent =
+          name.substring(0, 2).toUpperCase();
+      }
+    }
+
+    function openPage(pageId, button) {
+      document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+      });
+
+      document.getElementById(pageId).classList.add("active");
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      button.classList.add("active");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function showMessage(message) {
+      alert(message);
+    }
+
+    function logout() {
+      /*
+        Firebase signOut will be connected here.
+        Do not implement fake logout logic.
+      */
+      state.user = null;
+      hide("app");
+      show("loginScreen");
+    }
+
+    document.getElementById("googleLoginBtn").addEventListener("click", () => {
+      /*
+        Firebase Google Sign-In will be connected here.
+        We will use the exact Firebase project configuration
+        from the Cricket Cora Firebase console.
+      */
+
+      showMessage("Google Sign-In Firebase connection अगली step में connect होगा.");
+    });
+
+    window.addEventListener("online", checkInternet);
+
+    window.addEventListener("offline", () => {
+      hide("loadingScreen");
+      hide("loginScreen");
+      hide("app");
+      show("offlineScreen");
+    });
+
+    /* Start */
+    checkInternet();
+  </script>
+
+</body>
+  </html>
